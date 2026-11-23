@@ -46,7 +46,7 @@ const descriptions: Record<Section, string> = {
   Stock: "Monitor quantities, reorder levels, and stock movement.",
   Reports: "Review and export inventory, sales, and purchase data.",
 };
-const storageKey = "stockroom-inventory-v1";
+const storageKey = "stockroom-inventory-v2";
 
 function exportCsv(
   filename: string,
@@ -316,7 +316,7 @@ export default function Home() {
         <div className="workspace">
           <span className="avatar">S</span>
           <span>
-            Studio Supply<small>Demo workspace</small>
+            Office Supplies<small>Demo workspace</small>
           </span>
         </div>
       </aside>

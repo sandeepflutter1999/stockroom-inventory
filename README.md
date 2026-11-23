@@ -15,8 +15,8 @@ Open http://localhost:3000. Run `npm run check` for type checking and `npm run b
 
 ## Try the workflow
 
-1. Open **Purchases** and receive **PO-1045**. Oak Desk Organizer gains 24 units and clears its low-stock alert.
-2. Open **Sales** and record a sale for 21 Oak Desk Organizers. Its quantity drops to 11 and its low-stock alert returns.
+1. Open **Purchases** and receive **PO-1045**. The A4 document tray gains 24 units and clears its low-stock alert.
+2. Open **Sales** and record a sale for 21 A4 document trays. Its quantity drops to 11 and its low-stock alert returns.
 3. Open **Stock → Stock history** to see both movements. Search by item name or filter by movement type.
 4. Open **Reports** to review stock, sales, or purchases. **Export CSV** downloads the currently filtered rows.
 
