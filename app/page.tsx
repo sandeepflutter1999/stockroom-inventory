@@ -330,7 +330,7 @@ export default function Home() {
             <span /> Sample data
           </span>
         </header>
-        <div className="content">
+        <div className="content" key={section}>
           <div className="page-heading">
             <div>
               <h1>

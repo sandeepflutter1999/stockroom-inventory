@@ -59,7 +59,7 @@ export function DashboardSummary({
     <>
       <div className="metrics">
         {metrics.map(({ name, value, detail, icon: Icon, color }) => (
-          <article className="card metric" key={name}>
+          <article className="metric" key={name}>
             <div className={`icon-tile ${color}`}>
               <Icon size={19} />
             </div>
@@ -71,7 +71,7 @@ export function DashboardSummary({
       </div>
 
       <div className="overview">
-        <section className="card">
+        <section className="card stock-distribution">
           <div className="panel-heading">
             <div>
               <h2>Stock by category</h2>
