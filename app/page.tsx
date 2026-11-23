@@ -28,7 +28,7 @@ import {
 } from "./inventory";
 
 import { Badge, Table } from "./records";
-import { DashboardSummary } from "./dashboard";
+import { DashboardSummary, StockAlerts, StockDistribution } from "./dashboard";
 
 const navigation = [
   { name: "Dashboard", icon: LayoutDashboard },
@@ -331,7 +331,13 @@ export default function Home() {
           </span>
         </header>
         <div className="content" key={section}>
-          <div className="page-heading">
+          <div
+            className={
+              section === "Dashboard"
+                ? "page-heading dashboard-heading"
+                : "page-heading"
+            }
+          >
             <div>
               <h1>
                 {section === "Dashboard" ? "Inventory overview" : section}
@@ -441,161 +447,171 @@ export default function Home() {
             </div>
           )}
 
-          <section className="card records">
-            <div className="panel-heading records-heading">
-              <div>
-                <h2>
-                  {section === "Dashboard"
-                    ? "Recent activity"
-                    : history
-                      ? "Stock movement"
-                      : active === "Stock"
-                        ? "Inventory items"
-                        : active === "Sales"
-                          ? "Sales orders"
-                          : "Purchase orders"}
-                </h2>
-                <p>
-                  {section === "Dashboard"
-                    ? "Latest sales and supplier orders"
-                    : history
-                      ? "Completed sales and received purchases"
-                      : "Search and filter your records"}
-                </p>
+          <div
+            className={section === "Dashboard" ? "dashboard-grid" : undefined}
+          >
+            <section className="card records">
+              <div className="panel-heading records-heading">
+                <div>
+                  <h2>
+                    {section === "Dashboard"
+                      ? "Recent activity"
+                      : history
+                        ? "Stock movement"
+                        : active === "Stock"
+                          ? "Inventory items"
+                          : active === "Sales"
+                            ? "Sales orders"
+                            : "Purchase orders"}
+                  </h2>
+                  <p>
+                    {section === "Dashboard"
+                      ? "Latest sales and supplier orders"
+                      : history
+                        ? "Completed sales and received purchases"
+                        : "Search and filter your records"}
+                  </p>
+                </div>
+                <div className="tools">
+                  <label className="search">
+                    <Search size={17} />
+                    <input
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                      placeholder="Search records…"
+                      aria-label="Search records"
+                    />
+                  </label>
+                  {filterOptions.length > 0 && (
+                    <select
+                      aria-label="Filter records"
+                      value={filter}
+                      onChange={(event) => setFilter(event.target.value)}
+                    >
+                      <option value="All">
+                        All {history ? "types" : "statuses"}
+                      </option>
+                      {filterOptions.map((option) => (
+                        <option key={option}>{option}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
-              <div className="tools">
-                <label className="search">
-                  <Search size={17} />
-                  <input
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Search records…"
-                    aria-label="Search records"
-                  />
-                </label>
-                {filterOptions.length > 0 && (
-                  <select
-                    aria-label="Filter records"
-                    value={filter}
-                    onChange={(event) => setFilter(event.target.value)}
-                  >
-                    <option value="All">
-                      All {history ? "types" : "statuses"}
-                    </option>
-                    {filterOptions.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            </div>
-            {section === "Dashboard" ? (
-              <Table
-                headers={[
-                  "Activity",
-                  "Customer / supplier",
-                  "Date",
-                  "Amount",
-                  "Status",
-                ]}
-                rows={recent.map((order) => ({
-                  key: order.id,
-                  cells: [
-                    <span key="activity" className="activity">
-                      <span
-                        className={`icon-tile ${order.kind === "Sale" ? "violet" : "mint"}`}
-                      >
-                        {order.kind === "Sale" ? (
-                          <ArrowUpRight size={16} />
-                        ) : (
-                          <ArrowDownLeft size={16} />
-                        )}
-                      </span>
-                      <span>
-                        <strong>{order.id}</strong>
-                        <small>{order.kind}</small>
-                      </span>
-                    </span>,
-                    order.party,
-                    dateLabel(movementDate(order)),
-                    money(order.rate * order.quantity),
-                    <Badge key="status" value={order.status} />,
-                  ],
-                }))}
-              />
-            ) : active === "Stock" && history ? (
-              <Table
-                headers={[
-                  "Reference",
-                  "Item",
-                  "Movement",
-                  "Quantity change",
-                  "Date",
-                ]}
-                rows={movements.map((order) => ({
-                  key: order.id,
-                  cells: [
-                    order.id,
-                    itemName(order.sku),
-                    order.kind,
-                    `${order.kind === "Sale" ? "−" : "+"}${order.quantity}`,
-                    dateLabel(movementDate(order)),
-                  ],
-                }))}
-              />
-            ) : active === "Stock" ? (
-              <Table
-                headers={stockHeaders}
-                rows={items.map((item) => ({
-                  key: item.sku,
-                  cells: [
-                    <strong key="name">{item.name}</strong>,
-                    item.sku,
-                    item.category,
-                    item.quantity,
-                    item.minimum,
-                    money(item.price),
-                    <Badge key="status" value={stockStatus(item)} />,
-                  ],
-                }))}
-              />
-            ) : (
-              <Table
-                headers={[
-                  ...orderHeaders,
-                  ...(section === "Purchases" ? ["Action"] : []),
-                ]}
-                rows={orders.map((order) => ({
-                  key: order.id,
-                  cells: [
-                    <strong key="id">{order.id}</strong>,
-                    order.party,
-                    itemName(order.sku),
-                    order.quantity,
-                    money(order.rate * order.quantity),
-                    dateLabel(order.date),
-                    <Badge key="status" value={order.status} />,
-                    ...(section === "Purchases"
-                      ? [
-                          order.status === "Pending" ? (
-                            <button
-                              key="receive"
-                              className="secondary compact"
-                              disabled={!ready}
-                              onClick={() => receive(order.id)}
-                            >
-                              Receive
-                            </button>
+              {section === "Dashboard" ? (
+                <Table
+                  headers={[
+                    "Activity",
+                    "Customer / supplier",
+                    "Date",
+                    "Amount",
+                    "Status",
+                  ]}
+                  rows={recent.map((order) => ({
+                    key: order.id,
+                    cells: [
+                      <span key="activity" className="activity">
+                        <span
+                          className={`icon-tile ${order.kind === "Sale" ? "violet" : "mint"}`}
+                        >
+                          {order.kind === "Sale" ? (
+                            <ArrowUpRight size={16} />
                           ) : (
-                            "—"
-                          ),
-                        ]
-                      : []),
-                  ],
-                }))}
-              />
+                            <ArrowDownLeft size={16} />
+                          )}
+                        </span>
+                        <span>
+                          <strong>{order.id}</strong>
+                          <small>{order.kind}</small>
+                        </span>
+                      </span>,
+                      order.party,
+                      dateLabel(movementDate(order)),
+                      money(order.rate * order.quantity),
+                      <Badge key="status" value={order.status} />,
+                    ],
+                  }))}
+                />
+              ) : active === "Stock" && history ? (
+                <Table
+                  headers={[
+                    "Reference",
+                    "Item",
+                    "Movement",
+                    "Quantity change",
+                    "Date",
+                  ]}
+                  rows={movements.map((order) => ({
+                    key: order.id,
+                    cells: [
+                      order.id,
+                      itemName(order.sku),
+                      order.kind,
+                      `${order.kind === "Sale" ? "−" : "+"}${order.quantity}`,
+                      dateLabel(movementDate(order)),
+                    ],
+                  }))}
+                />
+              ) : active === "Stock" ? (
+                <Table
+                  headers={stockHeaders}
+                  rows={items.map((item) => ({
+                    key: item.sku,
+                    cells: [
+                      <strong key="name">{item.name}</strong>,
+                      item.sku,
+                      item.category,
+                      item.quantity,
+                      item.minimum,
+                      money(item.price),
+                      <Badge key="status" value={stockStatus(item)} />,
+                    ],
+                  }))}
+                />
+              ) : (
+                <Table
+                  headers={[
+                    ...orderHeaders,
+                    ...(section === "Purchases" ? ["Action"] : []),
+                  ]}
+                  rows={orders.map((order) => ({
+                    key: order.id,
+                    cells: [
+                      <strong key="id">{order.id}</strong>,
+                      order.party,
+                      itemName(order.sku),
+                      order.quantity,
+                      money(order.rate * order.quantity),
+                      dateLabel(order.date),
+                      <Badge key="status" value={order.status} />,
+                      ...(section === "Purchases"
+                        ? [
+                            order.status === "Pending" ? (
+                              <button
+                                key="receive"
+                                className="secondary compact"
+                                disabled={!ready}
+                                onClick={() => receive(order.id)}
+                              >
+                                Receive
+                              </button>
+                            ) : (
+                              "—"
+                            ),
+                          ]
+                        : []),
+                    ],
+                  }))}
+                />
+              )}
+            </section>
+            {section === "Dashboard" && (
+              <div className="dashboard-support">
+                <StockAlerts items={data.items} />
+                <StockDistribution items={data.items} />
+              </div>
             )}
-          </section>
+          </div>
         </div>
       </main>
 
