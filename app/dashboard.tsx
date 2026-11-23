@@ -80,7 +80,7 @@ export function StockDistribution({ items }: { items: Item[] }) {
       <div className="panel-heading">
         <div>
           <h2>Stock by category</h2>
-          <p>Units on hand across the catalog</p>
+          <p>Units on hand across the catalogue</p>
         </div>
         <Package size={19} />
       </div>
@@ -94,7 +94,9 @@ export function StockDistribution({ items }: { items: Item[] }) {
             <div className="bar-group" key={category}>
               <div>
                 <span>{category}</span>
-                <strong>{units} units</strong>
+                <strong>
+                  {units} {units === 1 ? "unit" : "units"}
+                </strong>
               </div>
               <div className="track">
                 <div
@@ -120,7 +122,9 @@ export function StockAlerts({ items }: { items: Item[] }) {
           <h2>Low stock alerts</h2>
           <p>Items that need replenishment</p>
         </div>
-        <span className="alert-count">{low.length} items</span>
+        <span className="alert-count">
+          {low.length} {low.length === 1 ? "item" : "items"}
+        </span>
       </div>
       <div className="alert-list">
         {low.length ? (

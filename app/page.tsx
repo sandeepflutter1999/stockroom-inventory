@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   Boxes,
   ChartNoAxesCombined,
+  ChevronDown,
   ClipboardList,
   Download,
   LayoutDashboard,
@@ -28,6 +29,8 @@ import {
 } from "./inventory";
 
 import { Badge, Table } from "./records";
+import { RecordFilter } from "./record-filter";
+import { WarehouseScene } from "./warehouse-scene";
 import { DashboardSummary, StockAlerts, StockDistribution } from "./dashboard";
 
 const navigation = [
@@ -196,7 +199,7 @@ export default function Home() {
           : `${id} was already received.`,
       );
     } catch {
-      setNotice("Could not save the receipt.");
+      setNotice("Could not receive the purchase order.");
     }
   }
 
@@ -247,9 +250,9 @@ export default function Home() {
     "Order",
     active === "Sales" ? "Customer" : "Supplier",
     "Item",
-    "Qty",
+    "Quantity",
     "Amount",
-    "Ordered",
+    "Order date",
     "Status",
   ];
   const stockHeaders = [
@@ -344,14 +347,14 @@ export default function Home() {
               </h1>
               <p>{descriptions[section]}</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="heading-actions flex flex-wrap gap-2">
               {(section === "Dashboard" || section === "Purchases") && (
                 <button
                   className={section === "Purchases" ? "primary" : "secondary"}
                   disabled={!ready}
                   onClick={() => openOrder("Purchase")}
                 >
-                  <Plus size={17} /> New purchase
+                  <Plus size={17} /> New purchase order
                 </button>
               )}
               {(section === "Dashboard" || section === "Sales") && (
@@ -380,6 +383,7 @@ export default function Home() {
                 </button>
               )}
             </div>
+            {section === "Dashboard" && <WarehouseScene />}
           </div>
 
           {section === "Dashboard" && (
@@ -402,7 +406,7 @@ export default function Home() {
                     setQuery("");
                   }}
                 >
-                  {value} report
+                  {value === "Purchases" ? "Purchase" : value} report
                 </button>
               ))}
             </div>
@@ -483,18 +487,20 @@ export default function Home() {
                     />
                   </label>
                   {filterOptions.length > 0 && (
-                    <select
-                      aria-label="Filter records"
+                    <RecordFilter
                       value={filter}
-                      onChange={(event) => setFilter(event.target.value)}
-                    >
-                      <option value="All">
-                        All {history ? "types" : "statuses"}
-                      </option>
-                      {filterOptions.map((option) => (
-                        <option key={option}>{option}</option>
-                      ))}
-                    </select>
+                      onChange={setFilter}
+                      options={[
+                        {
+                          value: "All",
+                          label: history ? "All types" : "All statuses",
+                        },
+                        ...filterOptions.map((option) => ({
+                          value: option,
+                          label: option,
+                        })),
+                      ]}
+                    />
                   )}
                 </div>
               </div>
@@ -635,7 +641,7 @@ export default function Home() {
               <button
                 type="button"
                 className="close"
-                aria-label="Close"
+                aria-label="Close form"
                 onClick={() => setModal(null)}
               >
                 <X size={21} />
@@ -647,22 +653,30 @@ export default function Home() {
             </label>
             <label>
               Item
-              <select
-                value={sku}
-                onChange={(event) => {
-                  setSku(event.target.value);
-                  setRate(
-                    data.items.find((item) => item.sku === event.target.value)!
-                      .price,
-                  );
-                }}
-              >
-                {data.items.map((item) => (
-                  <option key={item.sku} value={item.sku}>
-                    {item.name} · {item.quantity} available
-                  </option>
-                ))}
-              </select>
+              <span className="dropdown-field">
+                <select
+                  value={sku}
+                  onChange={(event) => {
+                    setSku(event.target.value);
+                    setRate(
+                      data.items.find(
+                        (item) => item.sku === event.target.value,
+                      )!.price,
+                    );
+                  }}
+                >
+                  {data.items.map((item) => (
+                    <option key={item.sku} value={item.sku}>
+                      {item.name} · {item.quantity} available
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  className="dropdown-chevron"
+                  size={16}
+                  aria-hidden="true"
+                />
+              </span>
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label>
@@ -707,7 +721,7 @@ export default function Home() {
                 Cancel
               </button>
               <button className="primary" type="submit" disabled={saving}>
-                {modal === "Sale" ? "Record sale" : "Create purchase"}
+                {modal === "Sale" ? "Record sale" : "Create purchase order"}
               </button>
             </div>
           </form>

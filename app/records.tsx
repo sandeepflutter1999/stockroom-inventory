@@ -1,10 +1,16 @@
+import { Check, Clock3, Minus } from "lucide-react";
 import type { ReactNode } from "react";
 
 export function Badge({ value }: { value: string }) {
+  const empty = value === "Out of stock";
+  const pending =
+    value === "Pending" || value === "Low stock" || value.endsWith(" left");
+  const Icon = empty ? Minus : pending ? Clock3 : Check;
+  const tone = empty ? "red" : pending ? "amber" : "green";
+
   return (
-    <span
-      className={`badge ${["Low stock", "Pending"].includes(value) || value.endsWith(" left") ? "amber" : value === "Out of stock" ? "red" : "green"}`}
-    >
+    <span className={`badge ${tone}`}>
+      <Icon size={13} aria-hidden="true" />
       {value}
     </span>
   );
