@@ -25,19 +25,26 @@ export function Table({
 }) {
   return (
     <div className="table-scroll">
-      <table>
-        <thead>
-          <tr>
+      <table role="table">
+        <thead role="rowgroup">
+          <tr role="row">
             {headers.map((header) => (
-              <th key={header}>{header}</th>
+              <th key={header} scope="col" role="columnheader">
+                {header}
+              </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody role="rowgroup">
           {rows.map((row) => (
-            <tr key={row.key}>
+            <tr key={row.key} role="row">
               {row.cells.map((cell, index) => (
-                <td key={index}>{cell}</td>
+                <td key={index} role="cell">
+                  <span className="record-cell-label" aria-hidden="true">
+                    {headers[index]}
+                  </span>
+                  <div className="record-cell-value">{cell}</div>
+                </td>
               ))}
             </tr>
           ))}
